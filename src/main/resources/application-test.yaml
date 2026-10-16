@@ -1,0 +1,169 @@
+spring:
+  application:
+    name: insurance-policy-management-test
+
+  threads:
+    virtual:
+      enabled: true
+
+  main:
+    keep-alive: true
+
+  # ================================
+  # Database Configuration (H2 Test)
+  # ================================
+  datasource:
+    url: jdbc:h2:mem:test_insurance_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+    initialization-mode: always
+    continue-on-error: false
+
+  sql:
+    init:
+      mode: never
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.H2Dialect
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        query:
+          cache:
+            queries: false
+            use_second_level_cache: false
+        use_sql_comments: false
+        use_identifer_rollback: true
+        jdbc_time_zone: UTC
+    open-in-view: false
+
+  # ================================
+  # Server Configuration (Test)
+  # ================================
+  server:
+    port: 8081
+    servlet:
+      context-path: /
+      session:
+        timeout: 10m
+    error:
+      include-message: always
+      include-binding-errors: always
+
+  # ================================
+  # Actuator Configuration (Test)
+  # ================================
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics
+        base-path: /actuator
+    endpoint:
+      health:
+        show-details: when_authenticated
+        probes:
+          enabled: true
+        liveness-state:
+          enabled: true
+        readiness-state:
+          enabled: true
+      metrics:
+        enabled: true
+
+  # ================================
+  # Jackson Serialization Configuration (Test)
+  # ================================
+# Logging Configuration (Test)
+# ================================
+logging:
+  level:
+    root: WARN
+    com.andres_lozada: INFO
+    org.springframework: WARN
+    org.springframework.web: WARN
+    org.springframework.orm.jpa: WARN
+    org.springframework.transaction: WARN
+    org.hibernate: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    org.apache.tomcat: INFO
+    org.apache.catalina: INFO
+    org.eclipse.jetty: INFO
+    com.zaxxer.hikari: INFO
+    com.h2database: INFO
+    ch.qos.logback: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/insurance-policy-management-test.log
+    max-size: 5MB
+    max-history: 5
+    total-size-cap: 10MB
+
+# ================================
+# Custom Application Properties (Test)
+# ================================
+app:
+  name: Insurance Policy Management Platform
+  version: 1.0.0
+  environment: test
+  api:
+    base-path: /api
+    version: v1
+  security:
+    api-key-header: X-API-Key
+  pagination:
+    default-page-size: 10
+    max-page-size: 50
+  audit:
+    enabled: false
+  core-integration:
+    enabled: true
+    timeout-millis: 5000
+    retry:
+      max-attempts: 1
+      backoff-millis: 100
+
+core:
+  integration:
+    base-url: http://localhost:8081
+    timeout: 5
+    retry-max-attempts: 1
+    retry-backoff-multiplier: 1.0
+
+api:
+  security:
+    valid-keys:
+      - test-api-key
+      - valid-test-key
+
+# ================================
+# Test-Specific Configuration
+# ================================
+test:
+  database:
+    clean: true
+    seed: false
+  integration:
+    timeout-millis: 30000
+  unit:
+    parallel: true
+    threads: 4

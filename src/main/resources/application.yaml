@@ -1,0 +1,195 @@
+spring:
+  application:
+    name: insurance-policy-management
+
+  threads:
+    virtual:
+      enabled: true
+
+  main:
+    keep-alive: true
+
+  profiles:
+    active: development
+
+  # ================================
+  # Database Configuration (H2 Development)
+  # ================================
+  datasource:
+    url: jdbc:h2:mem:insurance_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  sql:
+    init:
+      mode: never
+      continue-on-error: true
+
+  jpa:
+    defer-datasource-initialization: true
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        query:
+          cache:
+            queries: true
+            region_prefix: hibernate_query_cache
+            use_second_level_cache: true
+        use_sql_comments: true
+        use_identifer_rollback: true
+    open-in-view: false
+
+  # ================================
+  # Server Configuration
+  # ================================
+  server:
+    port: 8080
+    servlet:
+      context-path: /
+      session:
+        timeout: 30m
+    error:
+      include-message: always
+      include-binding-errors: always
+    undertow:
+      threads:
+        io: 4
+        worker: 200
+      buffer-size: 1024
+      directBuffers: true
+
+  # ================================
+  # Actuator Configuration
+  # ================================
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics,loggers,configprops
+        base-path: /actuator
+    endpoint:
+      health:
+        show-details: when_authenticated
+        probes:
+          enabled: true
+        liveness-state:
+          enabled: true
+        readiness-state:
+          enabled: true
+      metrics:
+        enabled: true
+      loggers:
+        enabled: true
+    health:
+      db:
+        enabled: true
+      disk-space:
+        enabled: true
+      status:
+        order:
+          - DOWN
+          - OUT_OF_SERVICE
+          - UNKNOWN
+          - UP
+
+  # ================================
+  # Jackson Serialization Configuration
+  # ================================
+  # Validation Configuration
+  # ================================
+  messages:
+    basename: messages
+
+# ================================
+# Logging Configuration
+# ================================
+logging:
+  level:
+    root: INFO
+    com.andres_lozada: DEBUG
+    org.springframework: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.orm.jpa: INFO
+    org.springframework.transaction: INFO
+    org.hibernate: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.engine.transaction: INFO
+    org.hibernate.persister.entity: INFO
+    org.hibernate.event.internal: INFO
+    org.apache.tomcat: INFO
+    org.apache.catalina: INFO
+    org.eclipse.jetty: INFO
+    com.zaxxer.hikari: INFO
+    com.h2database: INFO
+    com.amazonaws: WARN
+    io.netty: WARN
+    ch.qos.logback: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/insurance-policy-management.log
+    max-size: 10MB
+    max-history: 30
+    total-size-cap: 300MB
+
+# ================================
+# Custom Application Properties
+# ================================
+springdoc:
+  swagger-ui:
+    title: Insurance Policy Management Platform
+    operations-sorter: method
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+
+app:
+  name: Insurance Policy Management Platform
+  version: 1.0.0
+  api:
+    base-path: /api
+    version: v1
+  security:
+    api-key-header: X-API-Key
+  pagination:
+    default-page-size: 10
+    max-page-size: 100
+  audit:
+    enabled: true
+  core-integration:
+    enabled: true
+    timeout-millis: 30000
+
+core:
+  integration:
+    base-url: http://localhost:8080
+    timeout: 30
+    retry-max-attempts: 3
+    retry-backoff-multiplier: 2.0
+
+api:
+  security:
+    valid-keys:
+      - test-api-key
+      - valid-test-key
