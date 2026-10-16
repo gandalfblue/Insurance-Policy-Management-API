@@ -1,0 +1,204 @@
+spring:
+  application:
+    name: insurance-policy-management
+
+  threads:
+    virtual:
+      enabled: true
+
+  main:
+    keep-alive: true
+
+  # ================================
+  # Database Configuration (PostgreSQL Production)
+  # ================================
+  datasource:
+    url: jdbc:postgresql://localhost:5432/insurance_db
+    username: postgres
+    password:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      validation-timeout: 5000
+      leak-detection-detection-mode: LOG
+    initialization-mode: always
+    continue-on-error: false
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+        query:
+          cache:
+            queries: true
+            region_prefix: hibernate_query_cache
+            use_second_level_cache: true
+        use_sql_comments: false
+        use_identifer_rollback: true
+        jdbc_time_zone: UTC
+    open-in-view: false
+
+  # ================================
+  # Server Configuration
+  # ================================
+  server:
+    port: 8080
+    servlet:
+      context-path: /
+      session:
+        timeout: 30m
+    error:
+      include-message: never
+      include-binding-errors: never
+    undertow:
+      threads:
+        io: 8
+        worker: 400
+      buffer-size: 1024
+      directBuffers: true
+    connection-timeout: 20000
+
+  # ================================
+  # Actuator Configuration
+  # ================================
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics,loggers,configprops,env,beans
+        base-path: /actuator
+    endpoint:
+      health:
+        show-details: when_authenticated
+        probes:
+          enabled: true
+        liveness-state:
+          enabled: true
+        readiness-state:
+          enabled: true
+      metrics:
+        enabled: true
+      loggers:
+        enabled: true
+      configprops:
+        enabled: true
+      env:
+        enabled: true
+      beans:
+        enabled: true
+    health:
+      db:
+        enabled: true
+      disk-space:
+        enabled: true
+        threshold: 10MB
+      status:
+        order:
+          - DOWN
+          - OUT_OF_SERVICE
+          - UNKNOWN
+          - UP
+    metrics:
+      export:
+        prometheus:
+          enabled: true
+    metrics-tags:
+      application: ${spring.application.name}
+
+  # ================================
+  # Jackson Serialization Configuration
+  # ================================
+# Logging Configuration (Production)
+# ================================
+logging:
+  level:
+    root: WARN
+    com.andres_lozada: INFO
+    org.springframework: WARN
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.springframework.orm.jpa: WARN
+    org.springframework.transaction: WARN
+    org.hibernate: WARN
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+    org.apache.tomcat: WARN
+    org.apache.catalina: WARN
+    org.eclipse.jetty: WARN
+    com.zaxxer.hikari: WARN
+    com.postgresql: WARN
+    com.amazonaws: WARN
+    io.netty: WARN
+    ch.qos.logback: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/insurance-policy-management.log
+    max-size: 50MB
+    max-history: 90
+    total-size-cap: 3GB
+
+# ================================
+# Security Configuration (Production)
+# ================================
+security:
+  api-key-enabled: true
+  allowed-origins:
+    - https://your-domain.com
+    - https://api.your-domain.com
+  rate-limiting:
+    enabled: true
+    max-requests: 100
+    window-seconds: 60
+
+# ================================
+# Custom Application Properties
+# ================================
+app:
+  name: Insurance Policy Management Platform
+  version: 1.0.0
+  environment: production
+  api:
+    base-path: /api
+    version: v1
+  security:
+    api-key-header: X-API-Key
+  pagination:
+    default-page-size: 25
+    max-page-size: 100
+  audit:
+    enabled: true
+  core-integration:
+    enabled: true
+    timeout-millis: 30000
+    retry:
+      max-attempts: 3
+      backoff-millis: 1000
+
+core:
+  integration:
+    base-url: ${CORE_BASE_URL:http://localhost:8080}
+    timeout: 30
+    retry-max-attempts: 3
+    retry-backoff-multiplier: 2.0
+
+api:
+  security:
+    valid-keys:
+      - ${API_KEY}
